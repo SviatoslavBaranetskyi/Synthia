@@ -1,0 +1,13 @@
+[project]
+name = "core"
+version = "0.1.0"
+
+dependencies = [
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "structlog>=24.1"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

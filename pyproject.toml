@@ -1,0 +1,43 @@
+[project]
+name = "synthia"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.uv.workspace]
+members = [
+    "services/*",
+    "libs/*"
+]
+
+[tool.uv.sources]
+core = { workspace = true }
+schemas = { workspace = true }
+utils = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "pre-commit>=4.5.1",
+    "black>=26.3.1",
+    "isort>=8.0.1",
+]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "C90"]
+ignore = ["E203"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+
+[mypy]
+python_version = 3.11
+strict = true
+ignore_missing_imports = true

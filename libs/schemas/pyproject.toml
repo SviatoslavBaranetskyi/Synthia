@@ -1,0 +1,11 @@
+[project]
+name = "schemas"
+version = "0.1.0"
+
+dependencies = [
+    "pydantic>=2.6"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

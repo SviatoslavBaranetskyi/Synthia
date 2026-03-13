@@ -1,0 +1,19 @@
+[project]
+name = "llm-service"
+version = "0.1.0"
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "httpx",
+
+    "litellm",
+    "langchain",
+
+    "core",
+    "schemas"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
