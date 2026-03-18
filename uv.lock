@@ -1379,9 +1379,11 @@ version = "0.1.0"
 source = { editable = "services/moderation_service" }
 dependencies = [
     { name = "core" },
+    { name = "datasets" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "numpy" },
+    { name = "pandas" },
     { name = "schemas" },
     { name = "scikit-learn" },
     { name = "torch" },
@@ -1392,9 +1394,11 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "core", editable = "libs/core" },
+    { name = "datasets", specifier = ">=4.7.0" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "numpy" },
+    { name = "pandas", specifier = ">=3.0.1" },
     { name = "schemas", editable = "libs/schemas" },
     { name = "scikit-learn" },
     { name = "torch" },
