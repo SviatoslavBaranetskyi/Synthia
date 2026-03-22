@@ -1,5 +1,5 @@
 import torch
-from moderation_service.ml.model import ToxicClassifier
+from moderation_service.classifier.model import ToxicClassifier
 from transformers import DistilBertTokenizer
 
 

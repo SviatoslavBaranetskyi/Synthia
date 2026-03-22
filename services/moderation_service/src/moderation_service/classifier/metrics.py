@@ -3,7 +3,6 @@ from sklearn.metrics import f1_score, roc_auc_score
 
 
 def compute_metrics(predictions, labels):
-
     probs = 1 / (1 + np.exp(-predictions))
 
     preds = probs > 0.5
