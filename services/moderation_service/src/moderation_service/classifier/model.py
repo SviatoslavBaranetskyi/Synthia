@@ -54,13 +54,17 @@ class ToxicClassifier(nn.Module):
 
     @classmethod
     def from_pretrained(cls, load_directory: str):
-        config = torch.load(os.path.join(load_directory, "config.pt"))
+        config = torch.load(
+            os.path.join(load_directory, "config.pt"),
+            weights_only=True,
+        )
 
         model = cls(num_labels=config["num_labels"])
 
         state_dict = torch.load(
             os.path.join(load_directory, "model.pt"),
             map_location="cpu",
+            weights_only=True,
         )
 
         model.load_state_dict(state_dict)
