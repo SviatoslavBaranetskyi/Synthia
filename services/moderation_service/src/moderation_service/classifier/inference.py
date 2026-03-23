@@ -1,9 +1,9 @@
 import json
 import os
-import torch
-from transformers import DistilBertTokenizer
 
+import torch
 from moderation_service.classifier.model import ToxicClassifier
+from transformers import DistilBertTokenizer
 
 
 class ToxicityEngine:

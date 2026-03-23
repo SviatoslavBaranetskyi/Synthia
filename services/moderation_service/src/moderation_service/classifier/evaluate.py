@@ -1,13 +1,8 @@
 import torch
-from torch.utils.data import DataLoader
-
-from transformers import DistilBertTokenizer
-
-from moderation_service.classifier.dataset import (
-    load_toxic_dataset,
-    preprocess_dataset,
-)
 from moderation_service.classifier.calibration import run_calibration
+from moderation_service.classifier.dataset import load_toxic_dataset, preprocess_dataset
+from torch.utils.data import DataLoader
+from transformers import DistilBertTokenizer
 
 
 def main():

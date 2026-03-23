@@ -1,11 +1,11 @@
 import json
 import os
+
 import numpy as np
 import torch
-from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
-
-from moderation_service.classifier.threshold import find_best_threshold
 from moderation_service.classifier.model import ToxicClassifier
+from moderation_service.classifier.threshold import find_best_threshold
+from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
 
 
 def sigmoid(x):

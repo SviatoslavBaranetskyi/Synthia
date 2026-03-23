@@ -1,18 +1,9 @@
-from transformers import (
-    DistilBertTokenizer,
-    Trainer,
-    TrainingArguments,
-)
 import torch
-import numpy as np
 from datasets import DatasetDict
-from sklearn.metrics import accuracy_score, f1_score
-
-from moderation_service.classifier.dataset import (
-    load_toxic_dataset,
-    preprocess_dataset,
-)
+from moderation_service.classifier.dataset import load_toxic_dataset, preprocess_dataset
 from moderation_service.classifier.model import ToxicClassifier
+from sklearn.metrics import accuracy_score, f1_score
+from transformers import DistilBertTokenizer, Trainer, TrainingArguments
 
 
 def compute_metrics(pred):
@@ -35,10 +26,12 @@ def main():
 
     if "eval" not in dataset:
         split = dataset["train"].train_test_split(test_size=0.1, seed=42)
-        dataset = DatasetDict({
-            "train": split["train"],
-            "eval": split["test"],
-        })
+        dataset = DatasetDict(
+            {
+                "train": split["train"],
+                "eval": split["test"],
+            }
+        )
 
     tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
 
