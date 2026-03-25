@@ -1,16 +1,14 @@
-import torch
 import numpy as np
-from sentence_transformers import SentenceTransformer
-
-from embedding_service.schemas import SimilarExample
+import torch
 from embedding_service.faiss_index import EmbeddingIndex
+from embedding_service.schemas import SimilarExample
+from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingEngine:
     def __init__(self, index_path: str):
         self.model = SentenceTransformer(
-            "all-MiniLM-L6-v2",
-            device="cuda" if torch.cuda.is_available() else "cpu"
+            "all-MiniLM-L6-v2", device="cuda" if torch.cuda.is_available() else "cpu"
         )
 
         self.index = EmbeddingIndex()
@@ -20,6 +18,7 @@ class EmbeddingEngine:
         query_emb = self.model.encode([text], convert_to_numpy=True)
 
         import faiss
+
         faiss.normalize_L2(query_emb)
 
         scores, indices = self.index.index.search(query_emb, top_k)
