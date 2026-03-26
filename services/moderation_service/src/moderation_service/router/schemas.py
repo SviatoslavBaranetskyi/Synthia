@@ -1,5 +1,5 @@
-from typing import TypedDict, List, Optional
 from dataclasses import dataclass
+from typing import List, TypedDict
 
 
 class ModerationState(TypedDict, total=False):

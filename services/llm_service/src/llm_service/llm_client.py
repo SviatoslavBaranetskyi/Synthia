@@ -17,7 +17,7 @@ class LLMResponse(BaseModel):
 class LLMClient:
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str,
         timeout: int = 10,
         max_retries: int = 3,
         api_base: Optional[str] = None,
@@ -26,12 +26,8 @@ class LLMClient:
         self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
-
-        if api_base:
-            litellm.api_base = api_base
-
-        if api_key:
-            litellm.api_key = api_key
+        self.api_base = api_base
+        self.api_key = api_key
 
     def _call_llm(self, prompt: str) -> str:
         response = litellm.completion(
@@ -71,15 +67,12 @@ class LLMClient:
             raise ValueError("Invalid LLM response") from e
 
     def complete(self, prompt: str) -> Dict[str, Any]:
-        last_error = None
-
         for attempt in range(self.max_retries):
             try:
                 raw = self._call_llm(prompt)
                 return self._parse_response(raw)
 
             except Exception as e:
-                last_error = e
                 wait = 2**attempt
 
                 logger.warning(

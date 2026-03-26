@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from embedding_service.faiss_index import EmbeddingIndex
 from embedding_service.schemas import SimilarExample

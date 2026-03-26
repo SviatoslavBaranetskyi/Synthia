@@ -151,21 +151,15 @@ name = "api-gateway"
 version = "0.1.0"
 source = { editable = "services/api_gateway" }
 dependencies = [
-    { name = "core" },
     { name = "fastapi" },
     { name = "httpx" },
-    { name = "schemas" },
-    { name = "utils" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "core", editable = "libs/core" },
     { name = "fastapi" },
     { name = "httpx" },
-    { name = "schemas", editable = "libs/schemas" },
-    { name = "utils", editable = "libs/utils" },
     { name = "uvicorn", extras = ["standard"] },
 ]
 

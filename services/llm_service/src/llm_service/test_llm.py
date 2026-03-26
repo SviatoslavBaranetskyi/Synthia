@@ -3,7 +3,6 @@ import logging
 from llm_service.llm_client import LLMClient
 from llm_service.reasoning import build_prompt
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -33,7 +32,7 @@ def run_test():
 
         prompt = build_prompt(
             text=text,
-            examples = [
+            examples=[
                 "You are an idiot",
                 "Go kill yourself",
                 "Wow, you're useless",
