@@ -1,10 +1,11 @@
 import json
 import logging
+import re
 import time
 from typing import Any, Dict, Optional
 
 import litellm
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 class LLMResponse(BaseModel):
     label: str
     confidence: float
+    reason: Optional[str] = None
 
 
 class LLMClient:
@@ -45,13 +47,12 @@ class LLMClient:
         return response["choices"][0]["message"]["content"]
 
     def _extract_json(self, text: str) -> str:
-        start = text.find("{")
-        end = text.rfind("}") + 1
+        match = re.search(r"\{.*\}", text, re.DOTALL)
 
-        if start == -1 or end == -1:
-            raise ValueError("No JSON found in response")
+        if not match:
+            raise ValueError("No JSON found")
 
-        return text[start:end]
+        return match.group(0)
 
     def _parse_response(self, text: str) -> Dict[str, Any]:
         try:
@@ -60,25 +61,38 @@ class LLMClient:
 
             parsed = LLMResponse(**data)
 
-            return parsed.dict()
+            result = parsed.dict()
 
-        except (json.JSONDecodeError, ValidationError, ValueError) as e:
+            if not result.get("reason"):
+                result["reason"] = self._fallback_reason(result["label"])
+
+            return result
+
+        except Exception:
             logger.error(f"Invalid LLM response: {text}")
-            raise ValueError("Invalid LLM response") from e
+
+            return {
+                "label": "safe",
+                "confidence": 0.0,
+                "reason": "llm: parse failed",
+            }
 
     def complete(self, prompt: str) -> Dict[str, Any]:
         for attempt in range(self.max_retries):
             try:
                 raw = self._call_llm(prompt)
-                return self._parse_response(raw)
+                result = self._parse_response(raw)
+
+                if "reason" not in result:
+                    result["reason"] = "llm: no reason provided"
+
+                return result
 
             except Exception as e:
                 wait = 2**attempt
-
                 logger.warning(
                     f"[LLM] retry {attempt + 1}/{self.max_retries} after error: {e}"
                 )
-
                 time.sleep(wait)
 
         logger.error("[LLM] failed after retries, using fallback")
@@ -86,4 +100,10 @@ class LLMClient:
         return {
             "label": "safe",
             "confidence": 0.0,
+            "reason": "llm: fallback triggered due to error",
         }
+
+    def _fallback_reason(self, label: str) -> str:
+        if label == "toxic":
+            return "llm: classified as toxic (no explanation provided)"
+        return "llm: classified as safe (no issues detected)"

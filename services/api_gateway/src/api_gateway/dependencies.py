@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 from api_gateway.clients.moderation_client import ModerationClient
 
 

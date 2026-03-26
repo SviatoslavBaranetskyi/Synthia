@@ -37,14 +37,19 @@ class ToxicityEngine:
         with torch.no_grad():
             outputs = self.model(**tokens)
             logits = outputs["logits"]
-
             probs = torch.sigmoid(logits)
 
         prob = probs.squeeze().item()
         label = int(prob >= self.threshold)
 
+        if label == 1:
+            reason = "ml: high toxicity probability"
+        else:
+            reason = "ml: low toxicity probability"
+
         return {
             "probability": prob,
             "label": label,
             "threshold": self.threshold,
+            "reason": reason,
         }

@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends
-
-from moderation_service.api.schemas import (
-    ModerateRequest,
-    ModerateResponse,
-    ModerateBatchRequest,
-    ModerateBatchResponse,
-)
 from moderation_service.api.dependencies import get_router
 from moderation_service.api.mappers import to_response
+from moderation_service.api.schemas import (
+    ModerateBatchRequest,
+    ModerateBatchResponse,
+    ModerateRequest,
+    ModerateResponse,
+)
 from moderation_service.router.hybrid_router import HybridRouter
 
 router = APIRouter(prefix="/moderate", tags=["moderation"])
@@ -33,8 +32,6 @@ async def moderate_batch(
     for text in request.texts:
         result = hybrid_router.route(text)
 
-        results.append(
-            to_response(text, result)
-        )
+        results.append(to_response(text, result))
 
     return ModerateBatchResponse(results=results)

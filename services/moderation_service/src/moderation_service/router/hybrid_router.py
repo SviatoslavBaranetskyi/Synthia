@@ -30,6 +30,7 @@ class HybridRouter:
             source=state["source"],
             probability=state.get("probability"),
             llm_confidence=state.get("llm_confidence"),
+            reason=state.get("reason"),
         )
 
     def _build_graph(self):
@@ -67,6 +68,7 @@ class HybridRouter:
         return {
             "probability": result["probability"],
             "label": result["label"],
+            "reason": result["reason"],
         }
 
     def _faiss_node(self, state: ModerationState):
@@ -85,18 +87,21 @@ class HybridRouter:
         return {
             "llm_label": response["label"],
             "llm_confidence": response["confidence"],
+            "llm_reason": response.get("reason", "llm: no reason"),
         }
 
     def _high_conf_node(self, state: ModerationState):
         return {
             "final_label": "toxic",
             "source": "ml",
+            "reason": state.get("reason"),
         }
 
     def _llm_final_node(self, state: ModerationState):
         return {
             "final_label": state["llm_label"],
             "source": "llm",
+            "reason": state.get("llm_reason"),
         }
 
     def _route_decision(self, state: ModerationState) -> str:

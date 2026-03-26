@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends
+from api_gateway.clients.moderation_client import ModerationClient
+from api_gateway.dependencies import get_moderation_client
 from api_gateway.schemas.moderation import (
-    ModerateRequest,
-    ModerateResponse,
     ModerateBatchRequest,
     ModerateBatchResponse,
+    ModerateRequest,
+    ModerateResponse,
 )
-from api_gateway.dependencies import get_moderation_client
-from api_gateway.clients.moderation_client import ModerationClient
+from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix="/moderation", tags=["moderation"])
 

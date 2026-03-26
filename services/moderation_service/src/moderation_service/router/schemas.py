@@ -8,6 +8,7 @@ class ModerationState(TypedDict, total=False):
     # ML
     probability: float
     label: int
+    reason: str
 
     # FAISS
     similar_examples: List[str]
@@ -15,6 +16,7 @@ class ModerationState(TypedDict, total=False):
     # LLM
     llm_label: str
     llm_confidence: float
+    llm_reason: str
 
     # final
     final_label: str
@@ -27,3 +29,4 @@ class ModerationResult:
     source: str
     probability: float | None = None
     llm_confidence: float | None = None
+    reason: str | None = None

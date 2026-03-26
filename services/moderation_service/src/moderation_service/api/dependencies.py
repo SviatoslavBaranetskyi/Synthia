@@ -1,7 +1,8 @@
 from functools import lru_cache
+
 from llm_service.llm_client import LLMClient
-from moderation_service.router.hybrid_router import HybridRouter
 from moderation_service.mod_config import settings
+from moderation_service.router.hybrid_router import HybridRouter
 
 
 @lru_cache
