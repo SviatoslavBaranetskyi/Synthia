@@ -1,4 +1,4 @@
-from moderation_service.api.schemas import ModerateResponse
+from schemas.moderation import ModerateResponse
 from moderation_service.router.schemas import ModerationResult
 
 

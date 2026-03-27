@@ -1,6 +1,6 @@
 from api_gateway.clients.moderation_client import ModerationClient
 from api_gateway.dependencies import get_moderation_client
-from api_gateway.schemas.moderation import (
+from schemas.moderation import (
     ModerateBatchRequest,
     ModerateBatchResponse,
     ModerateRequest,

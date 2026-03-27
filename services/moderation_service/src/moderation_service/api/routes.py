@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from moderation_service.api.dependencies import get_router
 from moderation_service.api.mappers import to_response
-from moderation_service.api.schemas import (
+from schemas.moderation import (
     ModerateBatchRequest,
     ModerateBatchResponse,
     ModerateRequest,
