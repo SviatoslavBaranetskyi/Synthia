@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 from moderation_service.api.dependencies import get_router
 from moderation_service.api.mappers import to_response
+from moderation_service.router.hybrid_router import HybridRouter
 from schemas.moderation import (
     ModerateBatchRequest,
     ModerateBatchResponse,
     ModerateRequest,
     ModerateResponse,
 )
-from moderation_service.router.hybrid_router import HybridRouter
 
 router = APIRouter(prefix="/moderate", tags=["moderation"])
 

@@ -1,5 +1,5 @@
-from schemas.moderation import ModerateResponse
 from moderation_service.router.schemas import ModerationResult
+from schemas.moderation import ModerateResponse
 
 
 def to_response(text: str, result: ModerationResult) -> ModerateResponse:
