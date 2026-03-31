@@ -10,12 +10,14 @@ dist/
 .eggs/
 
 .venv/
+.venv-compat/
 venv/
 env/
 
 .uv/
 uv_cache/
 uv.lock
+.compat_meta/
 
 .env
 
@@ -40,6 +42,7 @@ Thumbs.db
 data/
 datasets/
 models/
+outputs/
 
 .ipynb_checkpoints/
 
