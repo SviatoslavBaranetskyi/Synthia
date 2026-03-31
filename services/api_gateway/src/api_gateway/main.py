@@ -1,7 +1,7 @@
 import logging
 
 from api_gateway.api_config import settings
-from api_gateway.routes import health, moderation
+from api_gateway.routes import generation, health, moderation
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -25,3 +25,4 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(moderation.router)
+app.include_router(generation.router)
