@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-schemas = { path = "../../libs/schemas" }
+schemas = { workspace = true }
 
 
 [build-system]
