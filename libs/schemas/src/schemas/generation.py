@@ -11,11 +11,16 @@ GenerationSampler = Literal[
     "euler",
     "ddim",
 ]
+GenerationModelKey = Literal[
+    "sd15_realisticvision",
+    "sdxl_instantid",
+]
 
 
 class GenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=5000)
     negative_prompt: str = ""
+    model_key: GenerationModelKey = "sd15_realisticvision"
     sampler: GenerationSampler = "dpmpp_sde_karras"
     steps: int = Field(30, ge=1, le=150)
     guidance_scale: float = Field(7.5, ge=1.0, le=30.0)
@@ -34,3 +39,12 @@ class GenerationResultResponse(BaseModel):
     status: GenerationStatus
     image_path: str | None = None
     error: str | None = None
+
+
+class GenerationModelInfo(BaseModel):
+    key: GenerationModelKey
+    label: str
+    task: Literal["txt2img", "identity_edit"]
+    description: str
+    default_width: int
+    default_height: int
