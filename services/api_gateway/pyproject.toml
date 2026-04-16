@@ -6,6 +6,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "httpx",
+    "python-multipart",
     "pydantic-settings",
     "schemas",
 ]

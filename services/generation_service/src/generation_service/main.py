@@ -4,11 +4,10 @@ import threading
 from fastapi import FastAPI
 
 from generation_service.core.logging import setup_logging
-
-setup_logging()
-
 from generation_service.api.routes import router
 from generation_service.workers.worker import run_worker
+
+setup_logging()
 
 logger = logging.getLogger(__name__)
 

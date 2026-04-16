@@ -27,6 +27,11 @@ dev = [
 
 [tool.ruff]
 line-length = 88
+extend-exclude = [
+    "services/generation_service/src/generation_service/vendor",
+]
+
+[tool.ruff.lint]
 select = ["E", "F", "C90"]
 ignore = ["E203"]
 

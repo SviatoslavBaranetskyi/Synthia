@@ -8,6 +8,10 @@ from generation_service.core.config import settings
 from schemas.generation import GenerateAcceptedResponse, GenerationResultResponse
 
 
+class QueueFullError(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class GenerationTask:
     task_id: str
@@ -30,7 +34,12 @@ class GenerationTaskQueue:
                 status="pending",
             )
 
-        self._queue.put(task)
+        try:
+            self._queue.put_nowait(task)
+        except queue.Full as exc:
+            with self._lock:
+                self._results.pop(task_id, None)
+            raise QueueFullError("Generation queue is full. Try again later.") from exc
 
         return GenerateAcceptedResponse(task_id=task_id)
 
