@@ -1,30 +1,44 @@
 from pathlib import Path
+from typing import Any
 
 import httpx
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile
 
 from api_gateway.api_config import settings
-from schemas.generation import GenerateRequest, GenerationModelKey, GenerationSampler
+from schemas.generation import (
+    GenerateImageRequest,
+    GenerateRequest,
+    GenerationModelKey,
+    GenerationSampler,
+)
 
 
 class GenerationClient:
-    def __init__(self):
-        self.base_url = settings.GENERATION_SERVICE_URL
+    def __init__(self) -> None:
+        self.base_url = settings.GENERATION_SERVICE_URL.rstrip("/")
 
-    async def generate(self, request: GenerateRequest):
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{self.base_url}/generation/",
-                json=request.model_dump(),
-            )
-            response.raise_for_status()
-            return response.json()
+    async def generate(self, request: GenerateRequest) -> Any:
+        return await self._request_json(
+            "POST",
+            "/generation/",
+            timeout=30.0,
+            json=request.model_dump(exclude_none=True),
+        )
 
-    async def list_models(self):
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(f"{self.base_url}/generation/models")
-            response.raise_for_status()
-            return response.json()
+    async def list_models(self) -> Any:
+        return await self._request_json(
+            "GET",
+            "/generation/models",
+            timeout=15.0,
+        )
+
+    async def generate_image(self, request: GenerateImageRequest) -> Any:
+        return await self._request_json(
+            "POST",
+            "/generate/image",
+            timeout=90.0,
+            json=request.model_dump(exclude_none=True),
+        )
 
     async def edit_image(
         self,
@@ -43,7 +57,7 @@ class GenerationClient:
         width: int | None = None,
         height: int | None = None,
         seed: int | None = None,
-    ):
+    ) -> Any:
         image.file.seek(0)
         filename = image.filename or "input.png"
         content_type = image.content_type or "image/png"
@@ -75,17 +89,63 @@ class GenerationClient:
             "image": (filename, image.file, content_type),
         }
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            response = await client.post(
-                f"{self.base_url}/generation/edit",
-                data=data,
-                files=files,
-            )
-            response.raise_for_status()
-            return response.json()
+        return await self._request_json(
+            "POST",
+            "/generation/edit",
+            timeout=120.0,
+            data=data,
+            files=files,
+        )
 
-    async def get_result(self, task_id: str):
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(f"{self.base_url}/generation/tasks/{task_id}")
-            response.raise_for_status()
+    async def get_result(self, task_id: str) -> Any:
+        return await self._request_json(
+            "GET",
+            f"/generation/tasks/{task_id}",
+            timeout=15.0,
+        )
+
+    async def _request_json(
+        self,
+        method: str,
+        path: str,
+        *,
+        timeout: float,
+        **kwargs: Any,
+    ) -> Any:
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.request(
+                    method,
+                    f"{self.base_url}{path}",
+                    **kwargs,
+                )
+        except httpx.RequestError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail="Generation service is unavailable.",
+            ) from exc
+
+        if response.is_error:
+            raise self._build_upstream_error(response)
+
+        try:
             return response.json()
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail="Generation service returned invalid JSON.",
+            ) from exc
+
+    def _build_upstream_error(self, response: httpx.Response) -> HTTPException:
+        detail: Any = "Generation service request failed."
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = None
+
+        if isinstance(payload, dict) and "detail" in payload:
+            detail = payload["detail"]
+        elif response.text:
+            detail = response.text
+
+        return HTTPException(status_code=response.status_code, detail=detail)

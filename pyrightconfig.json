@@ -1,0 +1,30 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "libs",
+    "services"
+  ],
+  "exclude": [
+    "comfy",
+    ".venv",
+    ".mypy_cache",
+    ".ruff_cache",
+    "**/__pycache__"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "libs/core/src",
+        "libs/schemas/src",
+        "libs/utils/src",
+        "services/api_gateway/src",
+        "services/embedding_service/src",
+        "services/generation_service/src",
+        "services/llm_service/src",
+        "services/moderation_service/src"
+      ]
+    }
+  ]
+}

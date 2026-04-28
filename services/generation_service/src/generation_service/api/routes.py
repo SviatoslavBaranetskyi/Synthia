@@ -1,9 +1,19 @@
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
-from generation_service.api.dependencies import get_task_queue
+from generation_service.api.dependencies import (
+    get_image_generation_service,
+    get_task_queue,
+)
 from generation_service.services.model_catalog import AVAILABLE_MODELS
+from generation_service.services.image_generation import (
+    ImageGenerationConfigurationError,
+    ImageGenerationError,
+    ImageGenerationQueueFullError,
+    ImageGenerationService,
+    ImageGenerationTemporaryError,
+)
 from generation_service.services.queue import GenerationTaskQueue, QueueFullError
 from generation_service.utils.image import (
     InvalidUploadedImageError,
@@ -11,6 +21,8 @@ from generation_service.utils.image import (
 )
 from schemas.generation import (
     GenerateAcceptedResponse,
+    GenerateImageRequest,
+    GenerateImageResponse,
     GenerateRequest,
     GenerationModelKey,
     GenerationSampler,
@@ -19,13 +31,14 @@ from schemas.generation import (
 )
 
 router = APIRouter(prefix="/generation", tags=["generation"])
+image_router = APIRouter(prefix="/generate", tags=["generation"])
 
 
 @router.post("/", response_model=GenerateAcceptedResponse)
 def generate(
     request: GenerateRequest,
     queue: GenerationTaskQueue = Depends(get_task_queue),
-):
+) -> GenerateAcceptedResponse:
     if request.model_key != "sd15_realisticvision":
         raise HTTPException(
             status_code=400,
@@ -41,14 +54,14 @@ def generate(
 
 
 @router.get("/models", response_model=list[GenerationModelInfo])
-def list_generation_models():
-    return AVAILABLE_MODELS
+def list_generation_models() -> list[GenerationModelInfo]:
+    return cast(list[GenerationModelInfo], AVAILABLE_MODELS)
 
 
 @router.post("/edit", response_model=GenerateAcceptedResponse)
 async def edit_image(
+    prompt: Annotated[str, Form(min_length=1, max_length=5000)],
     image: UploadFile = File(...),
-    prompt: Annotated[str, Form(min_length=1, max_length=5000)] = ...,
     negative_prompt: Annotated[str, Form()] = "",
     model_key: Annotated[GenerationModelKey, Form()] = "sdxl_instantid",
     sampler: Annotated[GenerationSampler, Form()] = "dpmpp_sde_karras",
@@ -63,7 +76,7 @@ async def edit_image(
     height: Annotated[int | None, Form(ge=512, le=2048, multiple_of=8)] = None,
     seed: Annotated[int | None, Form()] = None,
     queue: GenerationTaskQueue = Depends(get_task_queue),
-):
+) -> GenerateAcceptedResponse:
     try:
         source_image_path = save_uploaded_image(image)
     except InvalidUploadedImageError as exc:
@@ -97,9 +110,26 @@ async def edit_image(
 def get_generation_result(
     task_id: str,
     queue: GenerationTaskQueue = Depends(get_task_queue),
-):
+) -> GenerationResultResponse:
     result = queue.get_result(task_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Generation task not found")
 
     return result
+
+
+@image_router.post("/image", response_model=GenerateImageResponse)
+async def generate_image(
+    request: GenerateImageRequest,
+    service: ImageGenerationService = Depends(get_image_generation_service),
+) -> GenerateImageResponse:
+    try:
+        return await service.generate(request)
+    except ImageGenerationQueueFullError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ImageGenerationTemporaryError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ImageGenerationConfigurationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ImageGenerationError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc

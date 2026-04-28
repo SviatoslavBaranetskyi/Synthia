@@ -22,6 +22,19 @@ class Settings(BaseSettings):
     DEVICE: str = "cuda"
     PRECISION: str = "auto"
     MAX_QUEUE_SIZE: int = 0
+    ZIMAGE_ENABLED: bool = False
+    COMFYUI_ROOT: str = "../../comfy/ComfyUI"
+    COMFYUI_HOST: str = "127.0.0.1"
+    COMFYUI_PORT: int = 8188
+    COMFYUI_LISTEN_HOST: str = "127.0.0.1"
+    COMFYUI_STARTUP_TIMEOUT_SECONDS: int = 120
+    COMFYUI_GENERATION_TIMEOUT_SECONDS: int = 300
+    COMFYUI_POLL_INTERVAL_SECONDS: float = 1.0
+    ZIMAGE_QUEUE_SIZE: int = 8
+    ZIMAGE_BASE_MODEL_FILE: str = "z_image_turbo-Q4_K_M.gguf"
+    ZIMAGE_VAE_FILE: str = "ae.safetensors"
+    ZIMAGE_TEXT_ENCODER_FILE: str = "qwen_3_4b.safetensors"
+    ZIMAGE_OUTPUT_URL_PREFIX: str = ""
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,
@@ -30,7 +43,7 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]
 
 
 def resolve_service_path(path_value: str) -> Path:

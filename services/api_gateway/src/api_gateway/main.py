@@ -10,6 +10,8 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
 
+cors_allow_origins = settings.cors_allow_origins
+
 app = FastAPI(
     title="Synthia API Gateway",
     version="1.0.0",
@@ -17,8 +19,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=cors_allow_origins,
+    allow_credentials=bool(cors_allow_origins),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -26,3 +28,4 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(moderation.router)
 app.include_router(generation.router)
+app.include_router(generation.image_router)

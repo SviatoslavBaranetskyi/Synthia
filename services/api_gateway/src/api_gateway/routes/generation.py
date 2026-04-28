@@ -1,10 +1,12 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from api_gateway.clients.generation_client import GenerationClient
 from api_gateway.dependencies import get_generation_client
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from schemas.generation import (
     GenerateAcceptedResponse,
+    GenerateImageRequest,
+    GenerateImageResponse,
     GenerateRequest,
     GenerationModelInfo,
     GenerationModelKey,
@@ -13,27 +15,28 @@ from schemas.generation import (
 )
 
 router = APIRouter(prefix="/generation", tags=["generation"])
+image_router = APIRouter(prefix="/generate", tags=["generation"])
 
 
 @router.post("/", response_model=GenerateAcceptedResponse)
 async def generate(
     request: GenerateRequest,
     client: GenerationClient = Depends(get_generation_client),
-):
+) -> GenerateAcceptedResponse:
     return await client.generate(request)
 
 
 @router.get("/models", response_model=list[GenerationModelInfo])
 async def list_generation_models(
     client: GenerationClient = Depends(get_generation_client),
-):
+) -> Any:
     return await client.list_models()
 
 
 @router.post("/edit", response_model=GenerateAcceptedResponse)
 async def edit_image(
+    prompt: Annotated[str, Form(min_length=1, max_length=5000)],
     image: UploadFile = File(...),
-    prompt: Annotated[str, Form(min_length=1, max_length=5000)] = ...,
     negative_prompt: Annotated[str, Form()] = "",
     model_key: Annotated[GenerationModelKey, Form()] = "sdxl_instantid",
     sampler: Annotated[GenerationSampler, Form()] = "dpmpp_sde_karras",
@@ -48,7 +51,7 @@ async def edit_image(
     height: Annotated[int | None, Form(ge=512, le=2048, multiple_of=8)] = None,
     seed: Annotated[int | None, Form()] = None,
     client: GenerationClient = Depends(get_generation_client),
-):
+) -> GenerateAcceptedResponse:
     return await client.edit_image(
         image=image,
         prompt=prompt,
@@ -72,5 +75,13 @@ async def edit_image(
 async def get_generation_result(
     task_id: str,
     client: GenerationClient = Depends(get_generation_client),
-):
+) -> GenerationResultResponse:
     return await client.get_result(task_id)
+
+
+@image_router.post("/image", response_model=GenerateImageResponse)
+async def generate_image(
+    request: GenerateImageRequest,
+    client: GenerationClient = Depends(get_generation_client),
+) -> GenerateImageResponse:
+    return await client.generate_image(request)

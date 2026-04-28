@@ -1,7 +1,7 @@
 from schemas.generation import GenerationModelInfo
 
 
-AVAILABLE_MODELS = [
+AVAILABLE_MODELS: list[GenerationModelInfo] = [
     GenerationModelInfo(
         key="sd15_realisticvision",
         label="Realistic Vision V6.0 (SD 1.5)",

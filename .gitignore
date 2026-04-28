@@ -16,7 +16,8 @@ env/
 
 .uv/
 uv_cache/
-uv.lock
+**/uv.lock
+!/uv.lock
 .compat_meta/
 
 .env
@@ -55,3 +56,15 @@ htmlcov/
 
 tmp/
 temp/
+
+comfy/
+*.safetensors
+*.gguf
+*.ckpt
+*.bin
+*.db
+*.sqlite3
+*.tmp
+*.temp
+*.bak
+.cache/
